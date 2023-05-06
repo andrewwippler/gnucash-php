@@ -1,7 +1,7 @@
 <?php
 /**
- * 
- * 
+ *
+ *
  * @author Carsten Brandt <mail@cebe.cc>
  */
 
@@ -63,10 +63,12 @@ class GnuCash
 	    xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
 	    xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
 
-	    if (!xml_parse_into_struct($parser, implode("", gzfile($xmlFile)), $elements)) {
-		    xml_parser_free($parser);
-		    throw new \Exception("failed to parse XML");
-	    }
+      try {
+        xml_parse_into_struct($parser, implode("", gzfile($xmlFile)), $elements);
+      } catch (e) {
+        xml_parser_free($parser);
+        throw new \Exception("failed to parse XML", $e);
+      }
 	    xml_parser_free($parser);
 
 	    while($element = array_shift($elements)) {
