@@ -143,16 +143,22 @@ class GnuCash
 				$this->skipTag($elements, $element['tag'], $element['level']); // TODO
 			} elseif ($element['type'] === 'open' && $element['tag'] === 'gnc:GncTaxTable') {
 				$this->skipTag($elements, $element['tag'], $element['level']); // TODO
+      } elseif ($element['type'] === 'open' && $element['tag'] === 'gnc:pricedb') {
+				$this->skipTag($elements, $element['tag'], $element['level']); // TODO
 			} elseif ($element['type'] === 'open' && $element['tag'] === 'gnc:account') {
 				$account = $this->parseAccount($elements, $book);
 				$book->accounts[$account->id] = $account;
 			} elseif ($element['type'] === 'open' && $element['tag'] === 'gnc:transaction') {
 				$transaction = $this->parseTransaction($elements, $book);
 				$book->transactions[$transaction->id] = $transaction;
+			} elseif ($element['type'] === 'open' && $element['tag'] === 'gnc:template-transactions') {
+				$this->skipTag($elements, $element['tag'], $element['level']); // TODO
 			} elseif ($element['type'] === 'close') {
 				return $book;
 			} else {
-				throw new \Exception('Unexpected xml tag: ' . print_r($element, true));
+        echo "Unexpected xml tag: ".$element['tag']."\n";
+        $this->skipTag($elements, $element['tag'], $element['level']); // TODO
+				// throw new \Exception('Unexpected xml tag: ' . print_r($element, true));
 			}
 		}
 		throw new \Exception('Unexpected end of xml file.');
@@ -284,7 +290,7 @@ class GnuCash
 		$currencyCode = null;
 		while($element = array_shift($elements)) {
 			if ($element['type'] === 'complete' && $element['tag'] === 'cmdty:space') {
-				if ($element['value'] !== 'ISO4217') {
+				if ($element['value'] !== 'CURRENCY') { //v4 of GnuCash defines ISO4217 as CURRENCY see: https://www.gnucash.org/docs/v4/C/gnucash-guide/currency_manual.html#currency_acct_user2
 					throw new \Exception('Only ISO4217 currency codes are supported. Found a ' . $element['value'] . ' value.');
 				}
 			} elseif ($element['type'] === 'complete' && $element['tag'] === 'cmdty:id') {
@@ -328,7 +334,7 @@ class GnuCash
 	{
 		$split = new TransactionSplit($transaction);
 		while($element = array_shift($elements)) {
-			if ($element['type'] === 'complete' && $element['tag'] === 'split:id') {
+      if ($element['type'] === 'complete' && $element['tag'] === 'split:id') {
 				$split->id = $element['value'];
 			} elseif ($element['type'] === 'complete' && $element['tag'] === 'split:reconciled-state') {
 				$split->reconciledState = $element['value'];
@@ -344,6 +350,8 @@ class GnuCash
 				$split->memo = $element['value'];
 			} elseif ($element['type'] === 'complete' && $element['tag'] === 'split:action') {
 				$split->account = $element['value'];
+			} elseif ($element['type'] === 'open' && $element['tag'] === 'split:slots') {
+				$split->slots = $this->parseSlots($elements);
 			} elseif ($element['type'] === 'close') {
 				return $split;
 			} else {
