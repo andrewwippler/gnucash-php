@@ -1,7 +1,7 @@
 <?php
 /**
- * 
- * 
+ *
+ *
  * @author Carsten Brandt <mail@cebe.cc>
  */
 
@@ -32,7 +32,7 @@ class Account
 
 	public function __construct($book)
 	{
-		$this->book = $book;
+		$this->book = $book->id;
 	}
 
 	public function isRoot()
