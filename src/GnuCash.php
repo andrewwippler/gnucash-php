@@ -12,8 +12,8 @@ use cebe\gnucash\entities\Book;
 use cebe\gnucash\entities\Slot;
 use cebe\gnucash\entities\Transaction;
 use cebe\gnucash\entities\TransactionSplit;
-use SebastianBergmann\Money\Currency;
-use SebastianBergmann\Money\Money;
+use Money\Currency;
+use Money\Money;
 
 class GnuCash
 {
@@ -428,10 +428,10 @@ class GnuCash
 		}
 		if (isset($parts[1])) {
 			$div = (int) $parts[1];
-			if ($div === $currency->getSubUnit()) {
+			if ($div === 100) {
 				$moneyValue = (int) $parts[0];
-			} elseif ($div < $currency->getSubUnit()) {
-				$moneyValue = ((int) $parts[0]) * $currency->getSubUnit() / $div;
+			} elseif ($div < 100) {
+				$moneyValue = ((int) $parts[0]) * 100 / $div;
 				if (!is_int($moneyValue)) {
 					throw new \Exception('Illegal currency value: ' . $value . ' for currency ' . $currency . '. Value conversion resulted in a float value');
 				}
